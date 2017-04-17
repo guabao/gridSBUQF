@@ -16,4 +16,6 @@ class gridSBUQF():
         
         'create object'
         self.pandasFrame = pandas.DataFrame(data, index = dtm, columns = name)
+        self.dtm = dtm
+        self.name = name
         return None
