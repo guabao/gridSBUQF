@@ -12,5 +12,5 @@ def test_grid():
 
     mx = numpy.random.rand(10, 4)
     dte = pandas.date_range('20130101', periods = 10)
-    g = grid.gridSBUQF(mx, dte, list('ABCD'))
+    g = grid.gridOneField(mx, dte, list('ABCD'), 'price')
     return g
