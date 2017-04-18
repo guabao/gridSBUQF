@@ -38,4 +38,9 @@ class gridOneField():
             raise Exception('Under Construction!')
             assert data.shape[1] == len(name), 'Invalid name length!'
         self.pandasFrame = self.pandasFrame.assign(**{field: data.ravel()})
+        self.fields = self.pandasFrame.columns
+        return None
+
+
+    def selectv(self, dims):
         return None
