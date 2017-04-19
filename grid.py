@@ -42,5 +42,5 @@ class gridOneField():
         return None
 
 
-    def selectv(self, dims):
+    def select(self, dims):
         return None
