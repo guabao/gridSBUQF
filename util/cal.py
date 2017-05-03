@@ -25,7 +25,8 @@ class usCal():
         return None
 
     def period(self, day0=datetime.date.today(), day1=datetime.date.today()):
-        return self.cal.valid_days(start_date = day0, end_date = day1)[:-1]
+        periods = self.cal.valid_days(start_date = day0, end_date = day1)
+        return periods[:-1] if len(periods) > 1 else periods
 
     def day(self, n=0, day0=datetime.date.today()):
         if isinstance(day0, datetime.datetime) or isinstance(day0, datetime.date):
@@ -55,3 +56,11 @@ class usCal():
 
     def isTradingDay(self, day):
         return ~arr.isin(day, self.holidays)
+
+    def __getslice__(self, i, j):
+        return self.period(i, j)
+
+    def __getitem__(self, key):
+        assert key.step is None, "Not Implemented."
+        return self.__getslice__(key.start, key.stop)
+        #return self.period(key.start, key.stop)
