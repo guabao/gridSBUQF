@@ -7,7 +7,7 @@ import numpy
 import datetime
 
 
-class gridOneField():
+class gridDense():
     '''grid class based on pandas'''
     def __init__(self, data, dtm, name, field):
         #check data
@@ -44,7 +44,30 @@ class gridOneField():
 
 
     def select(self, days, names):
+        # dimension selection
+        return None
+    
+    
+    def sparse(self):
+        # transfer current grid to a sparse grid object
+        return None
+    
+    
+    def dense(self):
+        # transfer a sparse grid object to dense grid object
+        return None
+    
+    
+    def sparse_rate(self):
+        # compute the percentage of non zero data
         return None
 
+class gridSparse():
+    '''sparse grid object'''
+    def __init__(slef):
+        return None
     
-
+    
+def merge(gs):
+    # merge a list of dense/sparse grid object
+    return None
