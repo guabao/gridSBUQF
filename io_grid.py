@@ -23,3 +23,34 @@ def save_grid(g, path):
 def load_grid(path):
     store = pandas.HDFStore(path)
     return store['table']
+
+
+def save_grid_sparse(g, path):
+    # save a sparse grid object to disk, will append in save_grid()
+    return None
+
+
+def load_grid_sparse(path):
+    # load a sparse grid object from disk, will append in load_grid()
+    return None
+
+
+
+def grid2mat(g):
+    # given a grid object, transfer data to matlab matrix object
+    return mx
+
+
+def mat2grid(mx, axis = None):
+    # transfer a matlab maxtrix object to grid object
+    return g
+
+
+def grid2R_object(g):
+    # transfer grid object to an object in R
+    return None
+
+
+def R_object2grid():
+    # transfer a R object to grid
+    return None
