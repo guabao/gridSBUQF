@@ -28,7 +28,7 @@ class usCal():
         periods = self.cal.valid_days(start_date = day0, end_date = day1)
         return periods[:-1] if len(periods) > 1 else periods
 
-    def day(self, n=0, day0=datetime.date.today()):
+    def day(self, day0=datetime.date.today(), n=0):
         if isinstance(day0, datetime.datetime) or isinstance(day0, datetime.date):
             day0 = pandas.Timestamp(day0)
         assert isinstance(day0, pandas.Timestamp), 'Invalid day0 type!'
@@ -40,22 +40,23 @@ class usCal():
         else:
             validDays = self.period(targetDay, today)
         l = len(validDays)
-        if l >= numpy.abs(n):
+        if l > numpy.abs(n):
             return validDays[n]
         else:
-            self.day(n - (l - 1) * numpy.sign(n), targetDay)
+            return self.day(targetDay, n - (l - 1) * numpy.sign(n))
+            #self.day(n - (l - 1) * numpy.sign(n), targetDay)
 
-    def next(self, n=1, day0=datetime.date.today()):
-        return self.day(n, day0 = day0)
+    def next(self, day0=datetime.date.today(), n=1):
+        return self.day(day0, n)
 
-    def pre(self, n=1, day0=datetime.date.today()):
-        return self.day(n = -n, day0 = day0)
+    def pre(self, day0=datetime.date.today(), n=1):
+        return self.day(day0, -n)
 
     def isHoliday(self, day):
         return arr.isin(numpy.array(day, dtype = 'datetime64[D]'), self.holidays)
 
     def isTradingDay(self, day):
-        return ~arr.isin(day, self.holidays)
+        return ~self.isHoliday(day)
 
     def __getslice__(self, i, j):
         return self.period(i, j)

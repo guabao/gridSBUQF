@@ -22,7 +22,9 @@ def save_grid(g, path):
 
 def load_grid(path):
     store = pandas.HDFStore(path)
-    return store['table']
+    g = store['table']
+    store.close()
+    return g
 
 
 def save_grid_sparse(g, path):

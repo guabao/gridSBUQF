@@ -33,3 +33,15 @@ def isin(A, B):
     else:
         assert len(A1.shape) <= 1, "A's dimension is more than one!"
     return numpy.array(map(lambda x: x in B1, A1))
+
+
+def unique(arr):
+    # a smart function test unique
+    if isinstance(arr, numpy.ndarray):
+        return numpy.unique(arr)
+    else:
+        return list(sorted(set))
+
+
+def setnull(arr, val):
+    return numpy.where(numpy.isfinite(arr), arr, val)
