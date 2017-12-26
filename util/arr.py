@@ -33,7 +33,7 @@ def isin(A, B):
     else:
         assert len(A1.shape) <= 1, "A's dimension is more than one!"
     #return numpy.array(map(lambda x: x in B1, A1))
-	return numpy.array([x in B1 for x in A1])
+    return numpy.array([x in B1 for x in A1])
 
 
 
