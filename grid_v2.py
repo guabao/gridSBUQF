@@ -12,8 +12,8 @@ class grid():
 	# First suppose data is a list of two dimensional arrays corresponding to fields
 		assert len(data) == len(fields), 'Invalid data!'
 		for datafield in data:
-			assert self.dtm.shape[0] == datafield.shape[0], 'Data should have same raw length as original!'
-			assert self.name.shape[0] == datafield.shape[1], 'Data should have same column length as original!'
+			assert dtm.shape[0] == datafield.shape[0], 'Data should have same raw length as original!'
+			assert name.shape[0] == datafield.shape[1], 'Data should have same column length as original!'
 		self.data = {k:v for k,v in zip(fields, data)}
 		self.dtm = numpy.array(dtm)
 		self.name = numpy.array(name)
