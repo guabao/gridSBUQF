@@ -25,39 +25,36 @@ def mm(A, B):
 
 def isin(A, B):
     # given two arrays/lists A and B return an array whether the element of A is in B or not
-    B1 = numpy.array(B)
-    A1 = numpy.array(A)
-    #flag = numpy.empty(A1.shape, dtype = bool)
-    if len(A1.shape) == 0:
-        A1 = numpy.array([A1])
+    # future work: make a C version of this function
+    if hasattr(B, '__len__'):
+        B1 = numpy.sort(numpy.array(B))
     else:
-        assert len(A1.shape) <= 1, "A's dimension is more than one!"
-    return numpy.array(map(lambda x: x in B1, A1))
+        B1 = numpy.sort(numpy.array([B]))
+    if hasattr(A, '__len__'):
+        A1 = numpy.sort(numpy.array(A))
+    else:
+        A1 = numpy.sort(numpy.array([A]))
+    flag = numpy.empty(A1.shape)
+    i = 0
+    j = 0
+    lenA = A1.shape[0]
+    maxB = B1.shape[0] - 1
+    while (i < lenA):
+        if A1[i] < B1[j]:
+            flag[i] = False
+        elif A1[i] == B1[j]:
+            flag[i] = True
+            j += 1
+        else:
+            j += 1
+        i += 1
+        j = min(j, maxB)
+    return flag.astype(bool)
 
 
-def intersect(A, B, flag1=False, flag2=False):
-    '''
-    arr.intersect(A, B):
-    select the intersection between A and B
-    return the flag in common if flag1 or flag2 is True
-    '''
-    assert len(A.shape) == 1, 'A should be 1 dimension array!'
-    assert len(B.shape) == 1, 'B should be 1 dimension array!'
-    if not isinstance(A, numpy.ndarray):
-        A = numpy.array(A)
-    if not isinstance(B, numpy.ndarray):
-        B = numpy.array(B)
-    flag = isin(A, B)
-    if not flag1:
-        if not flag2:
-            return A[flag]
-        else:
-            return A[flag], isin(B, A[flag])
-    else:
-        if not flag2:
-            return A[flag], flag
-        else:
-            return A[flag], flag, isin(B, A[flag])
+def intersect(ar1, ar2, assume_unique=False):
+    '''call numpy.intersect1d'''
+    return numpy.intersect1d(ar1, ar2, assume_unique=False)
 
 
 def unique(arr):
