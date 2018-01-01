@@ -32,9 +32,32 @@ def isin(A, B):
         A1 = numpy.array([A1])
     else:
         assert len(A1.shape) <= 1, "A's dimension is more than one!"
-    #return numpy.array(map(lambda x: x in B1, A1))
-    return numpy.array([x in B1 for x in A1])
+    return numpy.array(map(lambda x: x in B1, A1))
 
+
+def intersect(A, B, flag1=False, flag2=False):
+    '''
+    arr.intersect(A, B):
+    select the intersection between A and B
+    return the flag in common if flag1 or flag2 is True
+    '''
+    assert len(A.shape) == 1, 'A should be 1 dimension array!'
+    assert len(B.shape) == 1, 'B should be 1 dimension array!'
+    if not isinstance(A, numpy.ndarray):
+        A = numpy.array(A)
+    if not isinstance(B, numpy.ndarray):
+        B = numpy.array(B)
+    flag = isin(A, B)
+    if not flag1:
+        if not flag2:
+            return A[flag]
+        else:
+            return A[flag], isin(B, A[flag])
+    else:
+        if not flag2:
+            return A[flag], flag
+        else:
+            return A[flag], flag, isin(B, A[flag])
 
 
 def unique(arr):
