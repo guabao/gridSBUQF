@@ -8,9 +8,11 @@ from util import arr
 import pdb
 class grid():
 	# on-going grid class
-	def __init__(self, data, name=None, dtm=None, fields=None):
+	def __init__(self, data, dtm=None, name=None, fields=None):
 	# First suppose data is a list of two dimensional arrays corresponding to fields
 		assert len(data) == len(fields), 'Invalid data!'
+                assert isinstance(dtm, numpy.ndarray), 'dtm should be numpy.ndarray type'
+                assert isinstance(name, numpy.ndarray), 'name should be numpy.ndarray type'
 		for datafield in data:
 			assert dtm.shape[0] == datafield.shape[0], 'Data should have same raw length as original!'
 			assert name.shape[0] == datafield.shape[1], 'Data should have same column length as original!'
@@ -18,6 +20,7 @@ class grid():
 		self.dtm = numpy.array(dtm)
 		self.name = numpy.array(name)
 		self.fields = numpy.array(fields)
+                self.shape = data[0].shape
 		self.__nameSorted__ = False
 		self.__dtmSorted__ = False
 		return None
@@ -25,20 +28,44 @@ class grid():
 	def __repr__(self):
 		return str(self.data)
 		
+        def __len__(self):
+                return self.shape[0]
+
 	def __getitem__(self, *args):
 		if not isinstance(args[0], tuple):
-			subdtm = args[0]
-			subname = self.name
-			subfields = self.fields
-			subdata = [self.data[k][subdtm,:] for k in self.data]
-		elif len(args[0]) == 2:
-			subdtm = args[0][0]
-			subname = args[0][1]
-			subfields = self.fields
-			subdata = [self.data[k][subdtm,arr.isin(self.name,subname)] for k in self.data]
+			indexDtm = args[0]
+                        indexName = slice(None, None, None)
+                elif len(args[0]) == 2:
+			indexDtm = args[0][0]
+			indexName = args[0][1]
 		else:
 			raise Exception("Invalid slicing!")
-		return grid(subdata, subname, subdtm, subfields)
+		subData = [self.data[k][indexDtm][indexName] for k in self.data]
+		return grid(subData, self.dtm[indexDtm], self.name[indexName], self.fields)
+
+
+        def select(self, dtm, name):
+            self.sortDtm()
+            self.sortName()
+            if numpy.any(dtm[:-1] < dtm[1:]):
+                dtm.sort()
+            if numpy.any(name[:-1] < name[1:]):
+                name.sort()
+            shape = [dtm.shape[0], name.shape[0]] 
+            mx0 = numpy.empty(shape)
+            mx0[:] = numpy.nan
+            gg = grid([mx0.copy() for _ in self.fields], dtm, name, self.fields)
+            #dtmCommon, dtmFlag1, dtmFlag2 = arr.intersect(self.dtm, dtm, flag1 = True, flag2 = True)
+            dtmCommon = numpy.intersect1d(self.dtm, dtm)
+            dtmFlag1 = arr.isin(dtm, dtmCommon)
+            dtmFlag2 = arr.isin(self.dtm, dtmCommon)
+            nameCommon = numpy.intersect1d(self.name, name)
+            nameFlag1 = arr.isin(name, nameCommon)
+            nameFlag2 = arr.isin(self.name, nameCommon)
+            #nameCommon, nameFlag1, nameFlag2 = arr.intersect(self.name, name, flag1 = True, flag2 = True)
+            for fi in self.fields:
+                gg.data[fi][dtmFlag1, nameFlag1] = self.data[fi][dtmFlag2, nameFlag2]
+            return gg
 		
 		
 	def addFields(self, data, dtm=None, name=None, fields=None):
@@ -52,18 +79,20 @@ class grid():
 		return None
 	
 	def sortDtm(self):
+            if self.__dtmSorted__ is False:
 		for field in self.fields:
-			self.data[field] = self.data[field][numpy.argsort(self.dtm),:]
+		    self.data[field] = self.data[field][numpy.argsort(self.dtm),:]
 		self.dtm = numpy.sort(self.dtm)
 		self.__dtmSorted__ = True
-		return None
+	    return None
 		
 	def sortName(self):
+            if self.__nameSorted__ is False:
 		for field in self.fields:
 			self.data[field] = self.data[field][:,numpy.argsort(self.name)]
 		self.name = numpy.sort(self.name)
 		self.__nameSorted__ = True
-		return None
+	    return None
 	
 	
 	def save(self, path):
@@ -92,7 +121,7 @@ def loadGrid(path):
 	data = []
 	for field in fields:
 		data.append(numpy.load(path+'\\fields\\'+field+'.npy'))
-	return grid(data, name, dtm, fields)
+	return grid(data, dtm, name, fields)
 		
 def hstack(grids):
 	assert len(grids) > 1, 'Grids should be a list length greater than 1!'		
@@ -127,10 +156,10 @@ def vstack(grids):
 
 def demo():
 	data = [numpy.random.rand(10,3), numpy.random.rand(10,3)]
-	dtm = [10,9,8,7,6,5,4,3,2,1]
-	name = ['d','b','c']
+	dtm = numpy.array([10,9,8,7,6,5,4,3,2,1])
+	name = numpy.array(['d','b','c'])
 	fields = ['open','close']
-	g = grid(data,name,dtm,fields)
+	g = grid(data,dtm,name,fields)
 	return g
 	
 def demo_addFields():
