@@ -1,9 +1,16 @@
 __doc__ = 'Framework of back test.'
 
+# built-in module
+import datetime
+
+# numpy scipy related
+import numpy
+
+# in-house related
+import grid_v2
 
 
-
-def backTestCore(dtms, fUniverse, fLookPrice, fDividends, fSplits, fRolling, fOptimization):
+def backTestCore(dtms, fUniverse, fRetrivePos, fOptimization, fTcost):
 
     #   back test frame work
     #
@@ -11,27 +18,24 @@ def backTestCore(dtms, fUniverse, fLookPrice, fDividends, fSplits, fRolling, fOp
     #
     #   dtms        :   1 dimension numpy array indicating the datetime range in the simulation
     #   fUniverse   :   a function returns a 1 dimension numpy array including the trading universe for the input dtm
-    #   fLookPrice  :   a function returns a grid including the look price at dtm for the input dtm and name
-    #   fDividends  :   a function returns a grid including the dividend data at dtm for the input dtm and name
-    #   fSplits     :   a function returns a grid including the splits data at dtm for the input dtm and name
-    #   fRolling    :   a function update the position upto current trading cycle given last cycle position and price function
+    #   fRetrivePos :   a function returns pre-position given dtm, name, and position grid
     #   fOptimization:  a function returns the target position given position grid
+    #   fTcost      :   a function returns the transaction cost paid given the position
 
     #initialization
 
     name_all = union([fUniverse(dtmi) for dtmi in dtms])    # get all the names
-    pos = pos_init(dtms, names)                               # initialize back test position
+    pos = pos_init(dtms, name_all)                          # initialize back test position
     
-    for i, dtmi in enumerate(dtm):
+    for i, dtmi in enumerate(dtms):
         
         name_active = fUniverse(dtmi)
-        pos = pos if dtmi == dtm[0] else fRolling(dtm[i-1], dtm, pos) # unfinished, need adjust
-        
-        pre_position = pos.select(dtmi, name_active) # unfinished, need adjust
-        target_position = fOptimization(pos)
 
-        pos.write(target_position)
+        pre_pos = fRetrivePos(dtmi, name_active, pos)
 
+        order = fOptimization(dtmi, name_active, pre_pos)
+
+        pos = fUpdateOrder(pos, order, fTcost)
 
     return pos
 
@@ -39,10 +43,22 @@ def backTestCore(dtms, fUniverse, fLookPrice, fDividends, fSplits, fRolling, fOp
 def _posInit(dtm, name):
     n = dtm.shape[0]
     m = name.shape[0]
-    dPrePos = numpy.zeros((n, m))
-    uPrePos = numpy.zeros((n. m))
-    dTrade = numpy.zeros((n, m))
-    uTrade = numpy.zeros((n, m))
-    dTargetPos = numpy.zeros((n, m))
-    uTargetPos = numpy.zeros((n, m))
-    return None
+    fields = 'dPrePos uPrePos dTrade uTrade dTargetPos uTargetPos dCumCash dCumTcost'.split()
+    data = [numpy.zeros((n, m)) for fi in fields]
+    return grid_v2.grid(data, name, dtm, fields)
+
+def _testPosInit():
+    n = 10
+    m = 5
+    name = numpy.array('a b c d e'.split())
+    dtms = numpy.array([datetime.datetime.now() + datetime.timedelta(minutes=5*i) for i in xrange(n)])
+    return _posInit(dtms, name)
+
+
+def _testOpt(fPrice):
+    def fOpt(dtm, names, pre_pos):
+        dtm = numpy.array(dtm)
+        position = numpy.random.rand(1, len(names))
+        gPrice = fPrice(dtm, names)
+        trade = 1. * (position - pre_pos) / gPrice.data['price']
+    return grid_v2.grid(trade[None, :], dtm, names, ['order'])
