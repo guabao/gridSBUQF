@@ -26,7 +26,7 @@ class usCal():
 
     def period(self, day0=datetime.date.today(), day1=datetime.date.today()):
         periods = self.cal.valid_days(start_date = day0, end_date = day1)
-        return periods[:-1] if len(periods) > 1 else periods
+        return periods[:-1].values if len(periods) > 1 else periods.values
 
     def day(self, day0=datetime.date.today(), n=0):
         if isinstance(day0, datetime.datetime) or isinstance(day0, datetime.date):
@@ -41,7 +41,7 @@ class usCal():
             validDays = self.period(targetDay, today)
         l = len(validDays)
         if l > numpy.abs(n):
-            return validDays[n]
+            return validDays[n].values
         else:
             return self.day(targetDay, n - (l - 1) * numpy.sign(n))
             #self.day(n - (l - 1) * numpy.sign(n), targetDay)
@@ -65,3 +65,9 @@ class usCal():
         assert key.step is None, "Not Implemented."
         return self.__getslice__(key.start, key.stop)
         #return self.period(key.start, key.stop)
+
+
+class intraCal():
+    def __init__(self, cal, tm):
+        raise NotImplementedError('Under Construction!')
+        return None

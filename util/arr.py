@@ -25,14 +25,40 @@ def mm(A, B):
 
 def isin(A, B):
     # given two arrays/lists A and B return an array whether the element of A is in B or not
-    B1 = numpy.array(B)
-    A1 = numpy.array(A)
-    #flag = numpy.empty(A1.shape, dtype = bool)
-    if len(A1.shape) == 0:
-        A1 = numpy.array([A1])
+    # future work: make a C version of this function
+    if hasattr(B, '__len__'):
+        B1 = numpy.sort(numpy.array(B))
     else:
-        assert len(A1.shape) <= 1, "A's dimension is more than one!"
-    return numpy.array(map(lambda x: x in B1, A1))
+        B1 = numpy.sort(numpy.array([B]))
+    if hasattr(A, '__len__'):
+        A1 = numpy.sort(numpy.array(A))
+    else:
+        A1 = numpy.sort(numpy.array([A]))
+    flag = numpy.full(A1.shape, False, dtype=bool)
+    if len(B1) == 0:
+        return flag
+    if len(A1) == 0:
+        return numpy.array([])
+    i = 0
+    j = 0
+    lenA = A1.shape[0]
+    maxB = B1.shape[0] - 1
+    while (i < lenA):
+        if A1[i] < B1[j]:
+            flag[i] = False
+        elif A1[i] == B1[j]:
+            flag[i] = True
+            j += 1
+        else:
+            j += 1
+        i += 1
+        j = min(j, maxB)
+    return flag.astype(bool)
+
+
+def intersect(ar1, ar2, assume_unique=False):
+    '''call numpy.intersect1d'''
+    return numpy.intersect1d(ar1, ar2, assume_unique=False)
 
 
 def unique(arr):
@@ -45,3 +71,34 @@ def unique(arr):
 
 def setnull(arr, val):
     return numpy.where(numpy.isfinite(arr), arr, val)
+
+
+def array(x):
+    '''
+    given an object x
+    return a numpy array type sequence of x
+    '''
+    if isinstance(x, list):
+        x1 = x
+    elif isinstance(x, numpy.ndarray):
+        x1 = x
+    else:
+        x1 = [x]
+    return numpy.array(x1)
+
+
+def bleed(x):
+    '''
+    bleed function, fill all nan values by first previous valid number
+    to do: make a cython version of this
+    '''
+    #assert axis is 0, 'Only support axis is 0'
+    x = x.ravel()
+    for i in xrange(1, x.shape[0]):
+        if numpy.isnan(x[i]):
+            x[i] = x[i-1]
+    return x
+
+
+
+
