@@ -34,7 +34,11 @@ def isin(A, B):
         A1 = numpy.sort(numpy.array(A))
     else:
         A1 = numpy.sort(numpy.array([A]))
-    flag = numpy.empty(A1.shape)
+    flag = numpy.full(A1.shape, False, dtype=bool)
+    if len(B1) == 0:
+        return flag
+    if len(A1) == 0:
+        return numpy.array([])
     i = 0
     j = 0
     lenA = A1.shape[0]
@@ -67,3 +71,34 @@ def unique(arr):
 
 def setnull(arr, val):
     return numpy.where(numpy.isfinite(arr), arr, val)
+
+
+def array(x):
+    '''
+    given an object x
+    return a numpy array type sequence of x
+    '''
+    if isinstance(x, list):
+        x1 = x
+    elif isinstance(x, numpy.ndarray):
+        x1 = x
+    else:
+        x1 = [x]
+    return numpy.array(x1)
+
+
+def bleed(x):
+    '''
+    bleed function, fill all nan values by first previous valid number
+    to do: make a cython version of this
+    '''
+    #assert axis is 0, 'Only support axis is 0'
+    x = x.ravel()
+    for i in xrange(1, x.shape[0]):
+        if numpy.isnan(x[i]):
+            x[i] = x[i-1]
+    return x
+
+
+
+
