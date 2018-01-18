@@ -67,8 +67,10 @@ class grid():
         nameFlag1 = arr.isin(name, nameCommon)
         nameFlag2 = arr.isin(self.name, nameCommon)
         #nameCommon, nameFlag1, nameFlag2 = arr.intersect(self.name, name, flag1 = True, flag2 = True)
+        flag1 = dtmFlag1[:, None] * nameFlag1[None, :]
+        flag2 = dtmFlag2[:, None] * nameFlag2[None, :]
         for fi in self.fields:
-            gg.data[fi][dtmFlag1, nameFlag1] = self.data[fi][dtmFlag2, nameFlag2]
+            gg.data[fi][flag1] = self.data[fi][flag2]
         return gg
 		
 		
