@@ -67,7 +67,15 @@ class usCal():
         #return self.period(key.start, key.stop)
 
 
+class cal():
+    def __init__(self):
+        raise NotImplementedError('Under Construction!')
+        return None
+
 class intraCal():
     def __init__(self, cal, tm):
         raise NotImplementedError('Under Construction!')
         return None
+
+
+
