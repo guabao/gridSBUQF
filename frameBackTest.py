@@ -14,17 +14,21 @@ from util import arr, cal
 import pdb
 
 
-def backTestCore(dtms, fUniverse, fRetrievePos, fOptimization, fUpdateOrder, fTcost):
+def backTestCore(dtms, fUniverse, fPrice, fRetrievePos, fOptimization, fUpdateOrder, fTcost):
 
+    '''
     #   back test frame work
     #
     #   description of inputs:
     #
     #   dtms        :   1 dimension numpy array indicating the datetime range in the simulation
     #   fUniverse   :   a function returns a 1 dimension numpy array including the trading universe for the input dtm
+    #   fPrice      :   a function returns the prices of current name given dtm and name
     #   fRetrivePos :   a function returns pre-position given dtm, name, and position grid
     #   fOptimization:  a function returns the target position given position grid
+    #   fUpdateOrder:   a function returns the simulation gride after fill
     #   fTcost      :   a function returns the transaction cost paid given the position
+    '''
 
     #initialization
 
@@ -35,14 +39,16 @@ def backTestCore(dtms, fUniverse, fRetrievePos, fOptimization, fUpdateOrder, fTc
     for i, dtmi in enumerate(dtms):
         
         print '------ %s ------ running simulation on %s ------'%(str(datetime.datetime.now()), str(dtmi))
+
+        dtmi = arr.array(dtmi)
         
         name_active = fUniverse(dtmi)
 
-        pre_pos = fRetrievePos(dtmi, name_active, pos)
+        pre_pos = fRetrievePos(dtmi, name_active, fPrice, pos)
 
-        order = fOptimization(dtmi, name_active, pre_pos)
+        order = fOptimization(dtmi, name_active, fPrice, pre_pos)
 
-        pos = fUpdateOrder(pos, order, fTcost)
+        pos = fUpdateOrder(pos, order, fPrice, fTcost)
 
     return pos
 
@@ -52,7 +58,10 @@ def _posInit(dtm, name):
     m = name.shape[0]
     fields = 'dPrePos uPrePos dTrade uTrade dTargetPos uTargetPos dCash dTcost'.split()
     data = [numpy.zeros((n, m)) for fi in fields]
-    return grid_v2.grid(data, dtm, name, fields)
+    g = grid_v2.grid(data, dtm, name, fields)
+    g.sortDtm()
+    g.sortName()
+    return g
 
 def _testPosInit():
     n = 10
