@@ -1,6 +1,7 @@
 __doc__ = "useful array supply function."
 
 import numpy
+import scipy
 
 def mv(A, b):
 # vector b multiplied by a matrix A, return c = Ab
@@ -26,6 +27,10 @@ def mm(A, B):
 def isin(A, B):
     # given two arrays/lists A and B return an array whether the element of A is in B or not
     # future work: make a C version of this function
+
+
+    # numpy has isin function so the old code is dropped
+    '''
     if hasattr(B, '__len__'):
         B1 = numpy.sort(numpy.array(B))
     else:
@@ -53,8 +58,10 @@ def isin(A, B):
             j += 1
         i += 1
         j = min(j, maxB)
-    return flag.astype(bool)
-
+    # inline implement
+   return flag.astype(bool)
+    '''
+    return numpy.isin(A, B)
 
 def intersect(ar1, ar2, assume_unique=False):
     '''call numpy.intersect1d'''
