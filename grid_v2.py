@@ -112,23 +112,23 @@ def saveGrid(grid, path):
     # save to a folder
     if not os.path.exists(path):
         os.makedirs(path)
-    numpy.save(path+'\\name', grid.name)
-    numpy.save(path+'\\dtm', grid.dtm)
-    numpy.save(path+'\\fields', grid.fields)
-    if not os.path.exists(path+'\\fields'):
-        os.makedirs(path+'\\fields')
+    numpy.save(path+'/name', grid.name)
+    numpy.save(path+'/dtm', grid.dtm)
+    numpy.save(path+'/fields', grid.fields)
+    if not os.path.exists(path+'/fields'):
+        os.makedirs(path+'/fields')
     for field in grid.fields:
-        numpy.save(path+'\\fields\\'+field, grid.data[field])
+        numpy.save(path+'/fields/'+field, grid.data[field])
     return None
 
 def loadGrid(path):
 	# load from a folder
-	name = numpy.load(path+'\\name.npy')
-	fields = numpy.load(path+'\\fields.npy')
-	dtm = numpy.load(path+'\\dtm.npy')
+	name = numpy.load(path+'/name.npy')
+	fields = numpy.load(path+'/fields.npy')
+	dtm = numpy.load(path+'/dtm.npy')
 	data = []
 	for field in fields:
-		data.append(numpy.load(path+'\\fields\\'+field+'.npy'))
+		data.append(numpy.load(path+'/fields/'+field+'.npy'))
 	return grid(data, dtm, name, fields)
 		
 def hstack(grids):
