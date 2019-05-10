@@ -15,8 +15,10 @@ class Names():
     '''
 
 
-
 def _process_txt_2_csv():
+    '''
+    Convert txt universe file to csv file
+    '''
     folder = os.getcwd()
     file_names = os.listdir(folder)
     file_avail = list(filter(lambda x: x if '.txt' in x else None, file_names))
@@ -29,14 +31,17 @@ def _process_txt_2_csv():
     return None
 
 
-def load_names(year, region='US'):
+def names_large_universe(year, region='US'):
     '''
-    Load names from txt file
+    Load names from csv file
     '''
-    
     assert region is 'US', 'Only support US region!'
     assert type(year) is int, 'Year should be an integer!'
+    path = os.path.dirname(os.path.realpath(__file__))[:-3] + '/' +
+            'US_%s_%s_500K.csv'%(str(year),str(year+1))
+    return numpy.readtxt(path, delimiter=',')
 
-    path = os.getcwd()
-    file_path = None
-    return None
+
+
+
+
