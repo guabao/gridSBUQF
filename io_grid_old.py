@@ -14,7 +14,7 @@ import grid
 
 
 def save_grid(g, path):
-    # save a grid type to disk 
+    # save a grid type to disk
     assert isinstance(g, grid.gridOneField), 'Input should be grid type!'
     g.pandasFrame.to_hdf(path, 'table', append = True)
     return None
