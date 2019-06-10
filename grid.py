@@ -112,6 +112,25 @@ class gridDense(object):
             self.field[fi] = g_new.field[fi]
         return None
 
+    def project_rough(self, dtm, name, field):
+        '''
+        Project current grid to a set of (field, dtm, name).
+        A rough project means the new tuple of (field, dtm, name) should be a
+        strict subset of the tuple of original grid.
+        '''
+        flag_dtm = numpy.isin(dtm, self.dtm)
+        flag_name = numpy.isin(name, self.name)
+        flag_field = numpy.isin(field, self.field)
+
+        assert numpy.all(flag_dtm), 'The input dtm should be a strict subset of dtms of the grid!'
+        assert numpy.all(flag_name), 'The input name should be a strict subset of names of the grid!'
+        assert numpy.all(flag_field), 'The input field should be a strict subset of fields of the grid!'
+
+        data = []
+        for fi in field:
+            data += [self.field[fi][flag_dtm, :][:, flag_name]]
+        return gridDense(data, dtm, name, field)
+
 
 def _test_gridDense():
     '''
