@@ -3,7 +3,9 @@
 
 process()
 {
-	cat $1 | awk -F "|" '{print $1,$2,$3,$5,$6}' > $2
+	cat $1 | awk -F "|" '
+	{print $1,$2,$3,$5,$6}
+	' > $2
 }
 
 process $1 $2
