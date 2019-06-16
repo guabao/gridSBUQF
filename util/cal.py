@@ -1,5 +1,5 @@
 __doc__ = 'market carlendar, has dependency on pandas_market_calendars'
-
+__pyVersion__ = 'python3'
 
 import pandas
 import numpy
@@ -7,7 +7,12 @@ import datetime
 
 import pandas_market_calendars
 
-import arr
+from . import arr
+
+_NOW=datetime.datetime.now()
+_NOW_DT64=numpy.datetime64(_NOW)
+_TODAY=_NOW.date()
+_TODAY_DT64=numpy.datetime64(_TODAY)
 
 
 
@@ -67,15 +72,62 @@ class usCal():
         #return self.period(key.start, key.stop)
 
 
-class cal():
+class calDay():
+    '''
+    A general day calendar, would support some trading system like crypto
+    '''
     def __init__(self):
-        raise NotImplementedError('Under Construction!')
+        self.timeZone = "UTC-5"
+        #raise NotImplementedError('Under Construction!')
         return None
 
-class intraCal():
-    def __init__(self, cal, tm):
-        raise NotImplementedError('Under Construction!')
+    def day(self, day0=_TODAY_DT64, n=0):
+        '''
+        Day count function, return day0 +(-) n day
+        '''
+        return numpy.datetime64(day0) + numpy.timedelta64(n, 'D')
+
+    def next(self, day0=_TODAY_DT64, n=1):
+        return self.day(day0, n)
+
+    def prev(self, day0=_TODAY_DT64, n=1):
+        return self.day(day0, -n)
+
+    #def __getslice__(self, start, end):
+    def __getitem__(self, sliced):
+        '''
+        Support cal[start:end] function 
+        '''
+        start = numpy.datetime64(sliced.start)
+        stop = numpy.datetime64(sliced.stop)
+        if sliced.step:
+            if not isinstance(sliced.step, numpy.timedelta64):
+                step = numpy.timedelta64(sliced.step)
+        else:
+            step = numpy.timedelta64(1, 'D')
+        assert (start - start.astype('datetime64[D]')).item().total_seconds()==0, 'Start dte should be a date!'
+        assert (stop - stop.astype('datetime64[D]')).item().total_seconds()==0, 'Stop dte should be a date!'
+        assert step==numpy.timedelta64(1,'D'), 'Only support 1 day step now!'
+        return numpy.arange(start, stop, step)
+
+class cal():
+    '''
+    A general intraday calendar, would support some trading system like crypto
+    '''
+    def __init__(self, timedelta=numpy.timedelta64(1,'m')):
+        self.timedelta = timedelta
         return None
+
+    def __getitem__(self, sliced):
+        '''
+        Support cal[start:end] function 
+        '''
+        start = numpy.datetime64(sliced.start)
+        stop = numpy.datetime64(sliced.stop)
+        assert sliced.step is None, 'Step in slice should be None!'
+        return numpy.arange(start, stop, self.timedelta)
+
+
 
 
 

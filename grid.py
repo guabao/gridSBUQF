@@ -65,7 +65,7 @@ class gridDense(object):
         self.dtm = self.dtm[idx_dtm]
         self.name = self.name[idx_name]
         for fi in self.field:
-            self.field[fi] = self.field[fi][idx_dtm, :][:, idx_name]
+            self._data[fi] = self._data[fi][idx_dtm, :][:, idx_name]
         self.is_sorted = True
         return None
 

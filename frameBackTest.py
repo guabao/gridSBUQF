@@ -7,7 +7,8 @@ import datetime
 import numpy
 
 # in-house related
-import grid_v2
+#import grid_v2
+import grid
 from util import arr, cal
 
 # debug
@@ -38,7 +39,7 @@ def backTestCore(dtms, fUniverse, fPrice, fRetrievePos, fOptimization, fUpdateOr
     
     for i, dtmi in enumerate(dtms):
         
-        print '------ %s ------ running simulation on %s ------'%(str(datetime.datetime.now()), str(dtmi))
+        print('------ %s ------ running simulation on %s ------'%(str(datetime.datetime.now()),str(dtmi)))
 
         dtmi = arr.array(dtmi)
         
@@ -57,17 +58,15 @@ def _posInit(dtm, name):
     n = dtm.shape[0]
     m = name.shape[0]
     fields = 'dPrePos uPrePos dTrade uTrade dTargetPos uTargetPos dCash dTcost'.split()
-    data = [numpy.zeros((n, m)) for fi in fields]
-    g = grid_v2.grid(data, dtm, name, fields)
-    g.sortDtm()
-    g.sortName()
+    data = numpy.array([numpy.zeros((n, m)) for fi in fields])
+    g = grid.gridDense(data, dtm, name, fields)
     return g
 
 def _testPosInit():
     n = 10
     m = 5
     name = numpy.array('a b c d e'.split())
-    dtms = numpy.array([datetime.datetime.now() + numpy.timedelta64(5*i, 'm') for i in xrange(n)])
+    dtms = numpy.array([numpy.datetime64(datetime.datetime.now()) + numpy.timedelta64(5*i, 'm') for i in range(n)])
     return _posInit(dtms, name)
 
 
@@ -176,6 +175,47 @@ def demo():
     return pos
 
 
+def fake_price_gbm(dtms, start=1., mean=0, std=1e-4):
+    '''
+    Generate fake geometric brownian motion
+    '''
+    l = len(dtms)
+    x = numpy.random.randn(l) * std
+    x[0] = 0.
+    price = numpy.cumprod(start + x)
+    def price(dtm, name):
+        return price[dtms==dtm]
+    return price
+
+
+def demo_1min():
+    '''
+    a simulation demo
+    trade a virtual asset every minute.
+    '''
+
+    # we generate dtm from 2015-01-01 to 2019-01-01
+    cal1 = cal.cal()
+    dtm_start = datetime.datetime(2015, 1, 1)
+    dtm_end = datetime.datetime(2019, 1, 1)
+    dtms = cal1[dtm_start: dtm_end]
+    fprice = fake_price_gbm(dtms)
+    def fOpt(dtm, name):
+        return numpy.ones([len(dtm), len(name)])
+    def fUniverse(dtm):
+        return numpy.array(['Bitcoin'])
+    def fRetrievePos(dtm, name, fPrice, grid):
+        return grid.project(dtm, name)
+    def fUpdateOrder(dtm, name, grid):
+        import pdb
+        pdb.set_trace()
+        return None
+    def fTcost_5bps(dtm, name, pos):
+        import pdb
+        pdb.set_trace()
+        return None
+    pos = backTestCore(dtms, fUniverse, fprice, fRetrievePos, fOpt, fUpdateOrder, fTcost_5bps)
+    return
 
 
 
