@@ -200,12 +200,14 @@ def demo_1min():
     dtm_end = datetime.datetime(2019, 1, 1)
     dtms = cal1[dtm_start: dtm_end]
     fprice = fake_price_gbm(dtms)
-    def fOpt(dtm, name):
+    def fOpt(dtm, name, fprice, pre_pos):
+        import pdb
+        pdb.set_trace()
         return numpy.ones([len(dtm), len(name)])
     def fUniverse(dtm):
         return numpy.array(['Bitcoin'])
     def fRetrievePos(dtm, name, fPrice, grid):
-        return grid.project(dtm, name)
+        return grid.project_rough(dtm, name, grid.field)
     def fUpdateOrder(dtm, name, grid):
         import pdb
         pdb.set_trace()

@@ -118,18 +118,18 @@ class gridDense(object):
         A rough project means the new tuple of (field, dtm, name) should be a
         strict subset of the tuple of original grid.
         '''
-        flag_dtm = numpy.isin(dtm, self.dtm)
-        flag_name = numpy.isin(name, self.name)
-        flag_field = numpy.isin(field, self.field)
+        flag_dtm = numpy.isin(self.dtm, dtm)
+        flag_name = numpy.isin(self.name, name)
+        flag_field = numpy.isin(self.field, field)
 
-        assert numpy.all(flag_dtm), 'The input dtm should be a strict subset of dtms of the grid!'
-        assert numpy.all(flag_name), 'The input name should be a strict subset of names of the grid!'
-        assert numpy.all(flag_field), 'The input field should be a strict subset of fields of the grid!'
+        assert len(dtm) == numpy.sum(flag_dtm), 'The input dtm should be a strict subset of dtms of the grid!'
+        assert len(name) == numpy.sum(flag_name), 'The input name should be a strict subset of names of the grid!'
+        assert len(field) == numpy.sum(flag_field), 'The input field should be a strict subset of fields of the grid!'
 
         data = []
         for fi in field:
-            data += [self.field[fi][flag_dtm, :][:, flag_name]]
-        return gridDense(data, dtm, name, field)
+            data += [self._data[fi][flag_dtm, :][:, flag_name]]
+        return gridDense(numpy.array(data), dtm, name, field)
 
 
 def _test_gridDense():
