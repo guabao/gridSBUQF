@@ -1,3 +1,6 @@
 https://medium.com/coinmonks/how-to-get-historical-crypto-currency-data-954062d40d2d
 
 https://min-api.cryptocompare.com/
+
+
+https://1token.trade/dataservice
