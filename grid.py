@@ -47,6 +47,10 @@ class gridDense(object):
         if is_sorted:
             self.sort()
 
+        # set attribute for each field
+        for fi in field:
+            setattr(self, fi, self._data[fi])
+
         # freeze the object
         self.__freeze__ = True
         return None
@@ -112,23 +116,32 @@ class gridDense(object):
             self.field[fi] = g_new.field[fi]
         return None
 
-    def project_rough(self, dtm, name, field):
+    def project(self, dtm, name, field, none_value=numpy.nan):
         '''
         Project current grid to a set of (field, dtm, name).
         A rough project means the new tuple of (field, dtm, name) should be a
         strict subset of the tuple of original grid.
         '''
-        flag_dtm = numpy.isin(self.dtm, dtm)
-        flag_name = numpy.isin(self.name, name)
-        flag_field = numpy.isin(self.field, field)
+        #flag_dtm = numpy.isin(self.dtm, dtm)
+        #flag_name = numpy.isin(self.name, name)
+        field = numpy.array(field)
+        if not field.shape:
+            field = field.reshape([1])
+        flag_field = numpy.isin(field, self.field)
 
-        assert len(dtm) == numpy.sum(flag_dtm), 'The input dtm should be a strict subset of dtms of the grid!'
-        assert len(name) == numpy.sum(flag_name), 'The input name should be a strict subset of names of the grid!'
-        assert len(field) == numpy.sum(flag_field), 'The input field should be a strict subset of fields of the grid!'
+        #assert len(dtm) == numpy.sum(flag_dtm), 'The input dtm should be a strict subset of dtms of the grid!'
+        #assert len(name) == numpy.sum(flag_name), 'The input name should be a strict subset of names of the grid!'
+        assert numpy.all(flag_field), 'The input field should be a subset of fields of the grid!'
 
         data = []
         for fi in field:
-            data += [self._data[fi][flag_dtm, :][:, flag_name]]
+            data_fi = numpy.empty([len(dtm), len(name)])
+            data_fi[:] = none_value
+            idx_dtm1, idx_dtm2 = numpy.where(dtm[:, None] == self.dtm[None, :])
+            idx_name1, idx_name2 = numpy.where(name[:, None] == self.name[None, :])
+            data_fi[idx_dtm1[:, None], idx_name1[None, :]] = self._data[fi][idx_dtm2[:, None], \
+                                                                            idx_name2[None, :]]
+            data.append(data_fi)
         return gridDense(numpy.array(data), dtm, name, field)
 
 
@@ -140,5 +153,5 @@ def _test_gridDense():
     names = numpy.array('AAPL MSFT'.split())
     data_open = numpy.random.rand(len(dtms), len(names))
     data_close = numpy.random.rand(len(dtms), len(names))
-    g = gridDense(numpy.array([data_open, data_close]), dtm=dtms, name=names, field='Open CLose'.split())
+    g = gridDense(numpy.array([data_open, data_close]), dtm=dtms, name=names, field='Open Close'.split())
     return g
